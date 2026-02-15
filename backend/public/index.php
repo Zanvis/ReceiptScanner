@@ -22,7 +22,7 @@ $app->addBodyParsingMiddleware();
 $app->addRoutingMiddleware();
 $errorMiddleware = $app->addErrorMiddleware(true, true, true);
 
-// Routes
+// Routes z prefiksem /api
 $app->get('/', function (Request $request, Response $response) {
     $response->getBody()->write(json_encode([
         'success' => true,
@@ -32,13 +32,13 @@ $app->get('/', function (Request $request, Response $response) {
     return $response;
 });
 
-$app->post('/receipts', [ReceiptController::class, 'create']);
-$app->get('/receipts', [ReceiptController::class, 'list']);
-$app->get('/receipts/stats', [ReceiptController::class, 'stats']);
-$app->delete('/receipts/{id}', [ReceiptController::class, 'delete']);
+$app->post('/api/receipts', [ReceiptController::class, 'create']);
+$app->get('/api/receipts', [ReceiptController::class, 'list']);
+$app->get('/api/receipts/stats', [ReceiptController::class, 'stats']);
+$app->delete('/api/receipts/{id}', [ReceiptController::class, 'delete']);
 
 // Health check
-$app->get('/health', function (Request $request, Response $response) {
+$app->get('/api/health', function (Request $request, Response $response) {
     try {
         \App\Database\Connection::getInstance();
         $response->getBody()->write(json_encode([

@@ -1,7 +1,7 @@
 import axios from 'axios';
 import type { Receipt, ReceiptStats, ApiResponse, ParsedReceipt } from './types';
 
-const API_URL = 'http://192.168.0.24:8080';
+const API_URL = 'http://192.168.0.24:8080/api';
 
 const api = axios.create({
     baseURL: API_URL,
