@@ -1,0 +1,52 @@
+version: '3.8'
+
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: receipt_mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: receipt_tracker
+      MYSQL_USER: receipt_user
+      MYSQL_PASSWORD: receipt_pass
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./backend/docker/init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - receipt_network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      timeout: 20s
+      retries: 10
+
+  php:
+    build:
+      context: ./backend
+      dockerfile: docker/Dockerfile
+    container_name: receipt_php
+    restart: unless-stopped
+    working_dir: /var/www/html
+    volumes:
+      - ./backend:/var/www/html
+    ports:
+      - "8080:80"
+    depends_on:
+      mysql:
+        condition: service_healthy
+    networks:
+      - receipt_network
+    environment:
+      - DB_HOST=mysql
+      - DB_NAME=receipt_tracker
+      - DB_USER=receipt_user
+      - DB_PASS=receipt_pass
+
+networks:
+  receipt_network:
+    driver: bridge
+
+volumes:
+  mysql_data:
