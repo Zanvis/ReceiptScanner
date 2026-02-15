@@ -1,94 +1,68 @@
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, TouchableOpacity } from 'react-native';
 import type { Receipt } from '@/lib/types';
+import { Text } from '@/components/ui/text';
 
 interface Props {
-    receipt: Receipt;
-    onPress?: () => void;
+  receipt: Receipt;
+  onPress?: () => void;
 }
 
 export default function ReceiptCard({ receipt, onPress }: Props) {
-    const formatDate = (dateStr: string) => {
-        const date = new Date(dateStr);
-        return date.toLocaleDateString('pl-PL', {
-        day: '2-digit',
-        month: '2-digit',
-        year: 'numeric',
-        });
-    };
+  // Funkcja, aby wyciągnąć pierwszą literę do "logo" sklepu
+  const getInitials = (name: string) => name.charAt(0).toUpperCase();
 
-    return (
-        <TouchableOpacity
-        style={styles.card}
-        onPress={onPress}
-        activeOpacity={0.7}
-        >
-        <View style={styles.header}>
-            <Text style={styles.store}>{receipt.store_name}</Text>
-            <Text style={styles.amount}>
-            {parseFloat(receipt.total_amount).toFixed(2)} zł
-            </Text>
+  const formatDate = (dateStr: string) => {
+    try {
+      return new Date(dateStr).toLocaleDateString('pl-PL', {
+        day: 'numeric',
+        month: 'short',
+      });
+    } catch {
+      return dateStr;
+    }
+  };
+
+  return (
+    <TouchableOpacity
+      className="bg-white p-4 rounded-2xl mb-3 border border-slate-100 shadow-sm flex-row items-center justify-between"
+      onPress={onPress}
+      activeOpacity={0.6}
+    >
+      {/* LEWA STRONA: Ikona + Info */}
+      <View className="flex-row items-center flex-1 gap-3">
+        {/* "Logo" sklepu - placeholder */}
+        <View className="w-10 h-10 bg-slate-100 rounded-full items-center justify-center border border-slate-200">
+          <Text className="text-slate-600 font-bold text-lg">
+            {getInitials(receipt.store_name)}
+          </Text>
         </View>
 
-        <View style={styles.footer}>
-            <View style={styles.category}>
-            <Text style={styles.categoryIcon}>📂</Text>
-            <Text style={styles.categoryText}>{receipt.category}</Text>
+        <View>
+          <Text className="text-slate-900 font-bold text-base leading-tight">
+            {receipt.store_name}
+          </Text>
+          <View className="flex-row items-center gap-2 mt-1">
+            {/* Badge kategorii */}
+            <View className="bg-slate-100 px-2 py-0.5 rounded-md">
+              <Text className="text-[10px] font-semibold text-slate-600 uppercase">
+                {receipt.category}
+              </Text>
             </View>
-            <Text style={styles.date}>{formatDate(receipt.parsed_date)}</Text>
+            <Text className="text-xs text-slate-400">
+              {formatDate(receipt.parsed_date)}
+            </Text>
+          </View>
         </View>
-        </TouchableOpacity>
-    );
-}
+      </View>
 
-const styles = StyleSheet.create({
-    card: {
-        backgroundColor: '#fff',
-        padding: 16,
-        borderRadius: 12,
-        marginBottom: 12,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.1,
-        shadowRadius: 4,
-        elevation: 3,
-    },
-    header: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        marginBottom: 12,
-    },
-    store: {
-        fontSize: 18,
-        fontWeight: '700',
-        color: '#333',
-        flex: 1,
-    },
-    amount: {
-        fontSize: 20,
-        fontWeight: 'bold',
-        color: '#4CAF50',
-    },
-    footer: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-    },
-    category: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 6,
-    },
-    categoryIcon: {
-        fontSize: 14,
-    },
-    categoryText: {
-        fontSize: 14,
-        color: '#666',
-    },
-    date: {
-        fontSize: 14,
-        color: '#999',
-    },
-});
+      {/* PRAWA STRONA: Cena */}
+      <View>
+        <Text className="text-slate-900 font-bold text-lg text-right tabular-nums">
+          -{parseFloat(receipt.total_amount).toFixed(2)}
+        </Text>
+        <Text className="text-slate-400 text-xs text-right">PLN</Text>
+      </View>
+    </TouchableOpacity>
+  );
+}
